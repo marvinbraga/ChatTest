@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ChatServer": {
+      "commandName": "Project",
+      "commandLineArgs": "localhost 8082 30"
+    }
+  }
+}
