@@ -47,11 +47,11 @@ namespace ChatClient
                 this.server = new TcpClient();
                 this.server.Connect(this.host, this.port);
                 this.isConnected = true;
+                this.thread = new Thread(new ThreadStart(this.ReadMessages));
+                this.thread.IsBackground = true;
                 this.sender = new StreamWriter(this.server.GetStream());
                 this.sender.WriteLine(this.username);
                 this.sender.Flush();
-                this.thread = new Thread(new ThreadStart(this.ReadMessages));
-                this.thread.IsBackground = true;
                 this.thread.Start();
                 this.UpdateLog($"Connected to Server: (username: {this.username}, ip: {this.host}, port: {this.port}.)");
             }
@@ -66,11 +66,7 @@ namespace ChatClient
         {
             this.reader = new StreamReader(this.server.GetStream());
             string response = this.reader.ReadLine();
-            if (response[0] == '@')
-            {
-                this.UpdateLog("Success connection.");
-            }
-            else
+            if (response[0] == '0')
             {
                 CloseConnectionCallBack closeConn = new(this.CloseConnection);
                 if (closeConn != null)
@@ -79,6 +75,11 @@ namespace ChatClient
                 }
                 return;
             }
+            else
+            {
+                this.UpdateLog("Success connection.");
+            }
+
             while (this.isConnected)
             {
                 UpdateLogCallBack updater = new(this.UpdateLog);
@@ -89,9 +90,14 @@ namespace ChatClient
             }
         }
 
+        private void UpdateLog(string msg)
+        {
+            System.Console.WriteLine(msg);
+        }
+
         public IClient SendMessage(string msg, string toUsername = "")
         {
-            if (msg.Trim() != "")
+            if (this.isConnected && msg.Trim() != "")
             {
                 this.sender.WriteLine(msg);
                 this.sender.Flush();
@@ -106,11 +112,6 @@ namespace ChatClient
             this.reader.Close();
             this.server.Close();
             this.isConnected = false;
-        }
-
-        private void UpdateLog(string msg)
-        {
-            System.Console.WriteLine(msg);
         }
     }
 }

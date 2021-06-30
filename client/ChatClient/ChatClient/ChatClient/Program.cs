@@ -7,13 +7,36 @@ namespace ChatClient
     {
         static void Main(string[] args)
         {
-            Client.New("marvin", IPAddress.Parse("127.0.0.1"), 8081).Run();
-            System.Console.WriteLine("Press ESC to exit...");
-            ConsoleKeyInfo keyinfo;
+            Console.Write("Enter your username: ");
+            string username = Console.ReadLine();
+            IClient client = Client.New(username, IPAddress.Parse("127.0.0.1"), 8081).Run();
+            string command;
             do
             {
-                keyinfo = Console.ReadKey();
-            } while (keyinfo.Key != ConsoleKey.Escape);
+                Console.WriteLine("[Commands: /exit, /priv, /pub] ");
+                Console.Write($"{username} enter the command: ");
+                command = Console.ReadLine();
+                string msg = "";
+                string toUsername = "";
+                if (command != "/exit")
+                {
+                    Console.Write($"{username} enter the message: ");
+                    msg = Console.ReadLine();
+                    if (command == "/priv")
+                    {
+                        Console.Write($"Inform the username who will receive the private message: ");
+                        toUsername = Console.ReadLine();
+                        msg = $"900||{username}||{toUsername}||{msg}";
+                    }
+                    else 
+                    {
+                        msg = $"700||{username}||null||{msg}";
+                    }
+                    client.SendMessage(msg, toUsername);
+                }
+            } while (command != "/exit");
         }
+
+
     }
 }
