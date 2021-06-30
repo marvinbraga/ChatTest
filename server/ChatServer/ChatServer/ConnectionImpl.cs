@@ -14,6 +14,8 @@ namespace ChatServer
         private string response;
         private IServer server;
 
+        public static IConnection New(TcpClient client, IServer server) => new Connection(client, server);
+
         public Connection(TcpClient client, IServer server)
         {
             this.client = client;
@@ -76,12 +78,11 @@ namespace ChatServer
                 if (this.response == null)
                 {
                     this.server.NicknameUnregister(this.client);
-                    break;
                 }
                 else
                 {
-                    // TODO: Aqui é para recuperar os comandos.
-                    PublicMessage.New(this.server).Send(this.response, this.username);
+                    // Send message by type (issue #2 public or issue #3 private).
+                    MessageFactory.Send(this.server, this.response, this.username);
                 }
             }
         }

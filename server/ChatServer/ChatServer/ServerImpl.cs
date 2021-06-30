@@ -19,20 +19,7 @@ namespace ChatServer
         private bool isRunning = false;
         public static event StatusEventHandler StatusChanged;
 
-        public Hashtable Users()
-        {
-            return this.users;
-        }
-
-        public Hashtable Connections()
-        {
-            return this.connections;
-        }
-
-        public static IServer New(IServerProperties props)
-        {
-            return new Server(props);
-        }
+        public static IServer New(IServerProperties props) => new Server(props);
 
         public Server(IServerProperties props)
         {
@@ -71,12 +58,13 @@ namespace ChatServer
             while (this.isRunning)
             {
                 this.client = this.server.AcceptTcpClient();
-                Connection conn = new(this.client, this);
+                IConnection conn = Connection.New(this.client, this);
             }
         }
 
         public bool NicknameRegister(TcpClient conn, string username)
         {
+            // Issue #1 - Register.
             bool notContains = !this.users.Contains(username);
             if (notContains)
             {
@@ -89,6 +77,7 @@ namespace ChatServer
 
         public IServer NicknameUnregister(TcpClient conn)
         {
+            // Issue #4 - Logout.
             if (this.connections[conn] != null)
             {
                 string user = $"{this.connections[conn]}";
@@ -99,6 +88,16 @@ namespace ChatServer
             return this;
         }
 
+        public Hashtable Users()
+        {
+            return this.users;
+        }
+
+        public Hashtable Connections()
+        {
+            return this.connections;
+        }
+
         public static void OnStatusChanged(StatusEventArgs e)
         {
             StatusEventHandler statusHandler = StatusChanged;
@@ -106,18 +105,6 @@ namespace ChatServer
             {
                 statusHandler(null, e);
             }
-        }
-
-        public IServer SendMsg(string username, string msg)
-        {
-            PublicMessage.New(this).Send(msg, username);
-            return this;
-        }
-
-        public IServer SendMsgTo(string username, string toUsername, string msg)
-        {
-            PrivateMessage.New(this).Send(msg, username, toUsername);
-            return this;
         }
     }
 }
