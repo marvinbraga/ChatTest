@@ -93,5 +93,9 @@ namespace ChatServer
             return this.client;
         }
 
+        public string Username()
+        {
+            return this.username;
+        }
     }
 }
