@@ -6,7 +6,7 @@ namespace ChatServer
     {
         public IPAddress Host();
         public int Port();
-
-        public int MaxUsersNumbers();
+        public int MaxUsersNumber();
+        public int MaxConnectionsNumber();
     }
 }

@@ -7,7 +7,7 @@ namespace ChatServer
     class Connection: IConnection
     {
         private TcpClient client;
-        private Thread th;
+        private Thread thread;
         private StreamReader reader;
         private StreamWriter sender;
         private string username;
@@ -18,9 +18,9 @@ namespace ChatServer
         {
             this.client = client;
             this.server = server;
-            this.th = new Thread(this.AcceptClient);
-            this.th.IsBackground = true;
-            this.th.Start();
+            this.thread = new Thread(this.AcceptClient);
+            this.thread.IsBackground = true;
+            this.thread.Start();
         }
 
         private void AcceptClient()
@@ -52,7 +52,6 @@ namespace ChatServer
                         return;
                     }
                 }
-                this.sender.Flush();
             }
             else
             {
@@ -62,22 +61,28 @@ namespace ChatServer
 
             try
             {
-                while ((this.response = this.reader.ReadLine().Trim()) != "")
-                {
-                    if (this.response == null)
-                    {
-                        this.server.NicknameUnregister(this.client);
-                    }
-                    else
-                    {
-                        // TODO: Aqui é para recuperar os comandos.
-                        this.server.SendMsg(this.username, this.response);
-                    }
-                }
+                this.Worker();
             }
             catch
             {
                 this.server.NicknameUnregister(this.client);
+            }
+        }
+
+        private void Worker()
+        {
+            while ((this.response = this.reader.ReadLine().Trim()) != "")
+            {
+                if (this.response == null)
+                {
+                    this.server.NicknameUnregister(this.client);
+                    break;
+                }
+                else
+                {
+                    // TODO: Aqui é para recuperar os comandos.
+                    this.server.SendMsg(this.username, this.response);
+                }
             }
         }
 

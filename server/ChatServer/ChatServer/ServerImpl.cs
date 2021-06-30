@@ -6,7 +6,6 @@ using System.Threading;
 
 namespace ChatServer
 {
-    // Define parameters to event.
     public delegate void StatusEventHandler(object sender, StatusEventArgs e);
 
     class Server: IServer
@@ -14,40 +13,45 @@ namespace ChatServer
         private IServerProperties props;
         private Hashtable users;
         private Hashtable connections;
-        private TcpClient tcpClient;
-        public static event StatusEventHandler StatusChanged;
+        private TcpClient client;
         private Thread listener;
-        private TcpListener clientTcp;
+        private TcpListener server;
         private bool isRunning = false;
+        public static event StatusEventHandler StatusChanged;
 
-        public static IServer New(IServerProperties props, StatusEventHandler statusEvent)
+        public static IServer New(IServerProperties props)
         {
-            return new Server(props, statusEvent);
+            return new Server(props);
         }
 
-        public Server(IServerProperties props, StatusEventHandler statusEvent)
+        public Server(IServerProperties props)
         {
             this.props = props;
-            this.users = new Hashtable(this.props.MaxUsersNumbers());
-            this.connections = new Hashtable(50);
+            this.users = new Hashtable(this.props.MaxUsersNumber());
+            this.connections = new Hashtable(this.props.MaxConnectionsNumber());
+        }
+
+        public IServer SetStatusEvent(StatusEventHandler statusEvent)
+        {
             Server.StatusChanged += statusEvent;
+            return this;
         }
 
         public IServer Run()
         {
             try
             {
-                this.clientTcp = new TcpListener(this.props.Host(), this.props.Port());
-                this.clientTcp.Start();
+                this.server = new TcpListener(this.props.Host(), this.props.Port());
+                this.server.Start();
                 this.isRunning = true;
                 this.listener = new Thread(this.AddListener);
                 this.listener.IsBackground = true;
                 this.listener.Start();
                 System.Console.WriteLine(this.props.ToString());
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Console.WriteLine($"Error: {ex.Message}");
             }
             return this;
         }
@@ -56,35 +60,36 @@ namespace ChatServer
         {
             while (this.isRunning)
             {
-                this.tcpClient = this.clientTcp.AcceptTcpClient();
-                Connection conn = new(this.tcpClient, this);
+                this.client = this.server.AcceptTcpClient();
+                Connection conn = new(this.client, this);
             }
         }
 
         protected static string NowStr()
         {
-            return $"{DateTime.Now:dd\\/ MM\\/ yyyy h\\:mm tt}";
+            return $"{DateTime.Now:dd\\/MM\\/yyyy h\\:mm tt}".Trim();
         }
 
-        public bool NicknameRegister(TcpClient tcpConn, string username)
+        public bool NicknameRegister(TcpClient conn, string username)
         {
             bool notContains = !this.users.Contains(username);
             if (notContains)
             {
-                this.users.Add(username, tcpConn);
-                this.connections.Add(tcpConn, username);
-                this.SendMsgAdmin($"[USER REGISTER] The user {username} has joined us at {Server.NowStr()}.");
+                this.users.Add(username, conn);
+                this.connections.Add(conn, username);
+                this.SendMsgAdmin($"[USER REGISTER] The user {username} has joined us.");
             }
             return notContains;
         }
 
-        public IServer NicknameUnregister(TcpClient tcpConn)
+        public IServer NicknameUnregister(TcpClient conn)
         {
-            if (this.connections[tcpConn] != null)
+            if (this.connections[conn] != null)
             {
-                this.SendMsgAdmin($"[USER UNREGISTER] The user {this.connections[tcpConn]} has logged out at {Server.NowStr()}.");
-                this.users.Remove(this.connections[tcpConn]);
-                this.connections.Remove(tcpConn);
+                string user = $"{this.connections[conn]}";
+                this.users.Remove(this.connections[conn]);
+                this.connections.Remove(conn);
+                this.SendMsgAdmin($"[USER UNREGISTER] The user {user} has logged out.");
             }
             return this;
         }

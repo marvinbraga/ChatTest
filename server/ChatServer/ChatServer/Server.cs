@@ -10,5 +10,6 @@ namespace ChatServer
         public IServer SendMsgAdmin(string msg);
         public IServer SendMsg(string username, string msg);
         public IServer SendMsgTo(string username, string toUsername, string msg);
+        public IServer SetStatusEvent(StatusEventHandler statusEvent);
     }
 }
