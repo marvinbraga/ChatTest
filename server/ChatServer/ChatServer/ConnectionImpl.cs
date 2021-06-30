@@ -81,7 +81,7 @@ namespace ChatServer
                 else
                 {
                     // TODO: Aqui é para recuperar os comandos.
-                    this.server.SendMsg(this.username, this.response);
+                    PublicMessage.New(this.server).Send(this.response, this.username);
                 }
             }
         }

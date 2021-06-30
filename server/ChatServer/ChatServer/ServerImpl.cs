@@ -19,6 +19,16 @@ namespace ChatServer
         private bool isRunning = false;
         public static event StatusEventHandler StatusChanged;
 
+        public Hashtable Users()
+        {
+            return this.users;
+        }
+
+        public Hashtable Connections()
+        {
+            return this.connections;
+        }
+
         public static IServer New(IServerProperties props)
         {
             return new Server(props);
@@ -65,11 +75,6 @@ namespace ChatServer
             }
         }
 
-        protected static string NowStr()
-        {
-            return $"{DateTime.Now:dd\\/MM\\/yyyy h\\:mm tt}".Trim();
-        }
-
         public bool NicknameRegister(TcpClient conn, string username)
         {
             bool notContains = !this.users.Contains(username);
@@ -77,7 +82,7 @@ namespace ChatServer
             {
                 this.users.Add(username, conn);
                 this.connections.Add(conn, username);
-                this.SendMsgAdmin($"[USER REGISTER] The user {username} has joined us.");
+                AdminMessage.New(this).Send($"[USER REGISTER] The user {username} has joined us.");
             }
             return notContains;
         }
@@ -89,7 +94,7 @@ namespace ChatServer
                 string user = $"{this.connections[conn]}";
                 this.users.Remove(this.connections[conn]);
                 this.connections.Remove(conn);
-                this.SendMsgAdmin($"[USER UNREGISTER] The user {user} has logged out.");
+                AdminMessage.New(this).Send($"[USER UNREGISTER] The user {user} has logged out.");
             }
             return this;
         }
@@ -103,66 +108,16 @@ namespace ChatServer
             }
         }
 
-        public IServer SendMsgAdmin(string msg)
-        {
-            if (msg.Trim() == "")
-            {
-                return this;
-            }
-            this.InternalSendMessage($"@admin {Server.NowStr()}: {msg}");
-            return this;
-        }
-
         public IServer SendMsg(string username, string msg)
         {
-            if (msg.Trim() == "")
-            {
-                return this;
-            }
-            this.InternalSendMessage($"@{username} {Server.NowStr()}: {msg}");
+            PublicMessage.New(this).Send(msg, username);
             return this;
         }
 
         public IServer SendMsgTo(string username, string toUsername, string msg)
         {
-            if (msg.Trim() == "")
-            {
-                return this;
-            }
-            this.InternalSendMessage($"@{username} {Server.NowStr()}: {msg}", toUsername);
+            PrivateMessage.New(this).Send(msg, username, toUsername);
             return this;
-        }
-
-        private void InternalSendMessage(string msg, string toUsername = "")
-        {
-            StreamWriter swSender;
-            StatusEventArgs e = new(msg);
-            Server.OnStatusChanged(e);
-
-            TcpClient[] clients = new TcpClient[this.users.Count];
-            this.users.Values.CopyTo(clients, 0);
-            for (int i = 0; i < clients.Length; i++)
-            {
-                var client = clients[i];
-                try
-                {
-                    if (client == null) { continue; }
-                    if (toUsername != "")
-                    {
-                        string user = $"{this.connections[client]}";
-                        if (user != toUsername) { continue; }
-                    }
-
-                    swSender = new StreamWriter(client.GetStream());
-                    swSender.WriteLine(msg);
-                    swSender.Flush();
-                    swSender = null;
-                }
-                catch
-                {
-                    this.NicknameUnregister(client);
-                }
-            }
         }
     }
 }

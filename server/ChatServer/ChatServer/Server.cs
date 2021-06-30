@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Collections;
+using System.Net.Sockets;
 
 namespace ChatServer
 {
@@ -7,9 +8,8 @@ namespace ChatServer
         public IServer Run();
         public bool NicknameRegister(TcpClient tcpConn, string username);
         public IServer NicknameUnregister(TcpClient tcpConn);
-        public IServer SendMsgAdmin(string msg);
-        public IServer SendMsg(string username, string msg);
-        public IServer SendMsgTo(string username, string toUsername, string msg);
         public IServer SetStatusEvent(StatusEventHandler statusEvent);
+        public Hashtable Users();
+        public Hashtable Connections();
     }
 }
