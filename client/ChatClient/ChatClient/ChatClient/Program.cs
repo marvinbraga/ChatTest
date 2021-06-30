@@ -36,7 +36,5 @@ namespace ChatClient
                 }
             } while (command != "/exit");
         }
-
-
     }
 }
