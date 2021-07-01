@@ -28,7 +28,7 @@ namespace ChatClientTest
         [Test]
         [TestCase("Teste de mensagem pública.")]
         [TestCase("")]
-        public void SendPublicMessage(string msg)
+        public void Test1_SendPublicMessage(string msg)
         {
             try
             {
@@ -45,13 +45,29 @@ namespace ChatClientTest
         [Test]
         [TestCase("Teste de mensagem privada.")]
         [TestCase("")]
-        public void SendPrivateMessage(string msg)
+        public void Test2_SendPrivateMessage(string msg)
         {
             try
             {
                 string username = client1.Username();
                 string toUsername = client2.Username();
                 client1.SendMessage($"900||{username}||{toUsername}||{msg}", toUsername);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test3_DisconnectClients()
+        {
+            try
+            {
+                client1 = null;
+                client2 = null;
+                client3 = null;
             }
             catch
             {
