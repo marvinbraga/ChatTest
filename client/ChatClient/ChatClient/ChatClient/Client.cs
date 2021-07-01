@@ -22,9 +22,9 @@ namespace ChatClient
         private bool isConnected = false;
         public static event StatusEventHandler StatusChanged;
 
-        public static IClient New(string username, IPAddress host, int port) => new Client(username, host, port);
+        public static IClient New(IPAddress host, int port, string username = "") => new Client(host, port, username);
 
-        public Client(string username, IPAddress host, int port)
+        public Client(IPAddress host, int port, string username = "")
         {
             this.username = username;
             this.host = host;
@@ -127,6 +127,7 @@ namespace ChatClient
         {
             this.isConnected = false;
             this.UpdateLog(info);
+            Client.StatusChanged = null;
             this.sender.Close();
             this.reader.Close();
             this.server.Close();

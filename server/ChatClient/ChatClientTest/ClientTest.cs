@@ -13,15 +13,15 @@ namespace ChatClientTest
         {
             if (client1 == null)
             {
-                client1 = Client.New("username_01", IPAddress.Parse("127.0.0.1"), 8081).Run();
+                client1 = Client.New(IPAddress.Parse("127.0.0.1"), 8081, "username_01").Run();
             }
             if (client2 == null)
             {
-                client2 = Client.New("username_02", IPAddress.Parse("127.0.0.1"), 8081).Run();
+                client2 = Client.New(IPAddress.Parse("127.0.0.1"), 8081, "username_02").Run();
             }
             if (client3 == null)
             {
-                client3 = Client.New("username_03", IPAddress.Parse("127.0.0.1"), 8081).Run();
+                client3 = Client.New(IPAddress.Parse("127.0.0.1"), 8081, "username_03").Run();
             }
         }
 

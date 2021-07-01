@@ -53,4 +53,6 @@ Caso a conexão seja aceita então podemos utilizar os seguintes comando:
 
 Quando utilizado o comando */priv* então será solicitado um nome de usuário conectado no servidor ChatServer. Caso este nome não seja válido a mensagem não será encaminhada para ninguém.
 
+## Dev
 
+  - [@marvinbraga](https://github.com/marvinbraga) as Marcus Vinicius Braga ([YouTube](https://www.youtube.com/c/marvinbraga/)) ([LinkedIn](https://www.linkedin.com/in/marvinbraga/))
