@@ -9,13 +9,20 @@ namespace ChatClient
         {
             bool isOut = false;
             string username;
+            IClientConsole c = null;
             do
             {
+                // TODO: Passar tudo isto para dentro da classe ClientConsole.
                 System.Console.WriteLine("Enter your username: ");
                 username = System.Console.ReadLine();
                 try
                 {
-                    ClientConsole.New(Client.New(username, IPAddress.Parse("127.0.0.1"), 8081).Run()).Execute();
+                    if (c != null)
+                    {
+                        c = null;
+                    }
+                    c = ClientConsole.New(Client.New(username, IPAddress.Parse("127.0.0.1"), 8081).Run());
+                    c.Execute();
                 }
                 catch (LogoutException)
                 {

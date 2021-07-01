@@ -31,7 +31,6 @@ namespace ChatClient
                 string toUsername = "";
                 if (command == "/logout")
                 {
-                    this.client.CloseConnection();
                     throw new LogoutException();
                 }
                 if (command != "/exit")
