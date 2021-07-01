@@ -24,11 +24,16 @@ namespace ChatClient
             string username = this.client.Username();
             do
             {
-                Console.WriteLine("[Commands: /exit, /priv, /pub] ");
+                Console.WriteLine("[Commands: /exit, /priv, /pub, /logout] ");
                 Console.Write($"{username} enter the command: ");
                 command = Console.ReadLine();
                 string msg = "";
                 string toUsername = "";
+                if (command == "/logout")
+                {
+                    this.client.CloseConnection();
+                    throw new LogoutException();
+                }
                 if (command != "/exit")
                 {
                     Console.Write($"{username} enter the message: ");
@@ -46,6 +51,10 @@ namespace ChatClient
                     client.SendMessage(msg, toUsername);
                 }
             } while (command != "/exit");
+            if (command == "/exit")
+            {
+                throw new ClientException("Application exit.");
+            }
         }
 
         public static void ClientStatusChanged(object sender, string e)

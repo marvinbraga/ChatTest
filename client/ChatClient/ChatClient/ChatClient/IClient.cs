@@ -7,5 +7,6 @@
         public IClient Run();
         public IClient SetStatusEvent(StatusEventHandler statusEvent);
         public string Username();
+        public void CloseConnection(string info = "");
     }
 }

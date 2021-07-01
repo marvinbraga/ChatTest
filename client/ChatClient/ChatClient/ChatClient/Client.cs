@@ -19,7 +19,7 @@ namespace ChatClient
         private Thread thread;
         private IPAddress host;
         private int port;
-        private bool isConnected;
+        private bool isConnected = false;
         public static event StatusEventHandler StatusChanged;
 
         public static IClient New(string username, IPAddress host, int port) => new Client(username, host, port);
@@ -75,6 +75,11 @@ namespace ChatClient
 
         public void ReadMessages()
         {
+            if (!this.isConnected)
+            {
+                return;
+            }
+            
             this.reader = new StreamReader(this.server.GetStream());
             string response = this.reader.ReadLine();
             if (response[0] == '0')
@@ -82,7 +87,8 @@ namespace ChatClient
                 CloseConnectionCallBack closeConn = new(this.CloseConnection);
                 if (closeConn != null)
                 {
-                    closeConn($"Connect failed: {response.Substring(2, response.Length - 2)}.");
+                    string msg = $"Connect failed: {response.Substring(2, response.Length - 2)}.";
+                    closeConn(msg);
                 }
                 return;
             }
@@ -117,13 +123,13 @@ namespace ChatClient
             return this;
         }
 
-        public void CloseConnection(string info)
+        public void CloseConnection(string info = "")
         {
+            this.isConnected = false;
             this.UpdateLog(info);
             this.sender.Close();
             this.reader.Close();
             this.server.Close();
-            this.isConnected = false;
         }
 
         public static void OnStatusChanged(string e)

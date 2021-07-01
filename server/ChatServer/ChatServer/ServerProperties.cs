@@ -24,7 +24,7 @@ namespace ChatServer
             IPAddress argHost = IPAddress.Parse("127.0.0.1");
             int argPort = 8081;
             int argMaxUsersNumber = 10;
-            int argMaxConnectionsNumber = 50;
+            int argMaxConnectionsNumber = 10;
 
             if (args.Length > 0)
             {
