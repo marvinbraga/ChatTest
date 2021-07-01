@@ -103,6 +103,7 @@ namespace ChatClient
 
         private void UpdateLog(string msg)
         {
+            System.Console.WriteLine("");
             System.Console.WriteLine(msg);
         }
 

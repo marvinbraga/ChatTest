@@ -4,31 +4,60 @@ using System.Net;
 
 namespace ChatClientTest
 {
-    public class Tests
+    public class ClientTest
     {
-        private IClient client;
-        private string username;
+        private IClient client1, client2, client3;
 
         [SetUp]
         public void Setup()
         {
-            username = "test_user";
-            client = Client.New(username, IPAddress.Parse("127.0.0.1"), 8081).Run();
+            if (client1 == null)
+            {
+                client1 = Client.New("username_01", IPAddress.Parse("127.0.0.1"), 8081).Run();
+            }
+            if (client2 == null)
+            {
+                client2 = Client.New("username_02", IPAddress.Parse("127.0.0.1"), 8081).Run();
+            }
+            if (client3 == null)
+            {
+                client3 = Client.New("username_03", IPAddress.Parse("127.0.0.1"), 8081).Run();
+            }
         }
 
         [Test]
-        [TestCase("Teste de mensagem.")]
+        [TestCase("Teste de mensagem pública.")]
+        [TestCase("")]
         public void SendPublicMessage(string msg)
         {
             try
             {
-                client.SendMessage($"700||{username}||null||{msg}", username);
-                Assert.Pass();
+                string username = client1.Username();
+                client1.SendMessage($"700||{username}||null||{msg}", username);
             }
             catch
             {
                 Assert.Fail();
             }
+            Assert.Pass();
+        }
+
+        [Test]
+        [TestCase("Teste de mensagem privada.")]
+        [TestCase("")]
+        public void SendPrivateMessage(string msg)
+        {
+            try
+            {
+                string username = client1.Username();
+                string toUsername = client2.Username();
+                client1.SendMessage($"900||{username}||{toUsername}||{msg}", toUsername);
+            }
+            catch
+            {
+                Assert.Fail();
+            }
+            Assert.Pass();
         }
     }
 }
